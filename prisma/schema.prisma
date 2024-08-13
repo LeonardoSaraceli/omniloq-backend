@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  password   String
+  profile    Profile?
+  chests     Chest[]
+  items      Item[]
+  tickets    Ticket[]
+  websites   Website[]
+  created_at DateTime  @default(now())
+}
+
+model Profile {
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Chest {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  items       Item[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int      @unique
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Item {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String?
+  username   String?
+  password   String
+  chests     Chest[]
+  websites   Website[]
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int       @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model Ticket {
+  id         Int      @id @default(autoincrement())
+  title      String
+  message    String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @unique
+  created_at DateTime @default(now())
+}
+
+model Website {
+  id         Int      @id @default(autoincrement())
+  url        String
+  items      Item[]
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @unique
+  created_at DateTime @default(now())
+}
