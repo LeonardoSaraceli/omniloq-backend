@@ -6,7 +6,7 @@ class ApiError extends Error {
   }
 }
 
-class MissingFieldsError extends ApiError {
+class BadRequestError extends ApiError {
   constructor(message) {
     super(400, message)
   }
@@ -18,22 +18,22 @@ class ExistingUniqueField extends ApiError {
   }
 }
 
-class BadRequestError extends ApiError {
-  constructor(message) {
-    super(401, message)
-  }
-}
-
 class NotFoundError extends ApiError {
   constructor(message) {
     super(404, message)
   }
 }
 
+class InvalidTokenError extends ApiError {
+  constructor(message) {
+    super(401, message)
+  }
+}
+
 export default ApiError
 export {
-  MissingFieldsError,
-  ExistingUniqueField,
   BadRequestError,
+  ExistingUniqueField,
   NotFoundError,
+  InvalidTokenError,
 }

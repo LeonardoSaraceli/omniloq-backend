@@ -1,8 +1,17 @@
 import { prisma } from '../utils/prisma.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import cryptoJs from 'crypto-js'
 
-const getUserByEmail = async (email) => {
+const getUserByIdDb = async (userId) => {
+  return await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  })
+}
+
+const getUserByEmailDb = async (email) => {
   return await prisma.user.findUnique({
     where: {
       email: email,
@@ -10,101 +19,73 @@ const getUserByEmail = async (email) => {
   })
 }
 
-const createUserDb = async (email, password) => {
+const createUserDb = async (first_name, last_name, email, password) => {
   return await prisma.user.create({
     data: {
       email: email,
       password: await bcrypt.hash(password, 8),
-    },
-  })
-}
-
-const createProfileDb = async (first_name, last_name, userId) => {
-  return await prisma.profile.create({
-    data: {
-      first_name: first_name,
-      last_name: last_name,
-      userId: userId,
-    },
-  })
-}
-
-const createWebsiteDb = async (url, id) => {
-  return await prisma.website.create({
-    data: {
-      url: url,
-      userId: id,
-    },
-  })
-}
-
-const createItemDb = async (name, email, password, userId, websiteId) => {
-  return await prisma.item.create({
-    data: {
-      name: name,
-      email: email,
-      password: password,
-      userId: userId,
-      websites: {
-        connect: {
-          id: websiteId,
+      profile: {
+        create: {
+          first_name: first_name,
+          last_name: last_name,
         },
       },
-    },
-  })
-}
-
-const createChestDb = async (name, description, userId, itemId) => {
-  return await prisma.chest.create({
-    data: {
-      name: name,
-      description: description,
-      userId: userId,
+      chests: {
+        create: {
+          name: 'Personal',
+          description: 'My general accounts',
+        },
+      },
       items: {
-        connect: {
-          id: itemId,
+        create: {
+          name: 'Omniloq',
+          email: email,
+          password: cryptoJs.AES.encrypt(
+            password,
+            process.env.SECRET_KEY
+          ).toString(),
+          chests: {
+            connect: {
+              id: 1,
+            },
+          },
+        },
+      },
+      websites: {
+        create: {
+          url: 'omniloq.com',
+          items: {
+            connect: {
+              id: 1,
+            },
+          },
         },
       },
     },
   })
 }
 
-const comparePassword = async (password, userPassword) => {
+const verifyPasswordDb = async (password, userPassword) => {
   return await bcrypt.compare(password, userPassword)
 }
 
-const createTokenDb = (userId, key) => {
-  return jwt.sign({ id: userId }, key)
+const createTokenDb = (userId) => {
+  return jwt.sign({ id: userId }, process.env.SECRET_KEY)
 }
 
-const getUserByIdDb = async (id) => {
-  return await prisma.user.findUnique({
-    where: {
-      id: id,
-    },
-    include: {
-      profile: true,
-    },
-  })
-}
-
-const deleteUserByIdDb = async (id) => {
+const deleteUserByIdDb = async (userId) => {
   return await prisma.user.delete({
     where: {
-      id: id,
+      id: userId,
     },
   })
 }
 
 export {
-  getUserByEmail,
-  createUserDb,
-  createProfileDb,
-  createWebsiteDb,
-  createItemDb,
-  createChestDb,
-  comparePassword,
-  createTokenDb,
   getUserByIdDb,
+  getUserByEmailDb,
+  createUserDb,
+  verifyPasswordDb,
+  createTokenDb,
   deleteUserByIdDb,
 }

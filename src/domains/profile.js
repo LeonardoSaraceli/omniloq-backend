@@ -1,17 +1,17 @@
 import { prisma } from '../utils/prisma.js'
 
-const getProfileByIdDb = async (id) => {
+const getProfileByIdDb = async (profileId) => {
   return await prisma.profile.findUnique({
     where: {
-      id: id,
+      id: profileId,
     },
   })
 }
 
-const updateProfileDb = async (id, first_name, last_name) => {
+const updateProfileByIdDb = async (profileId, first_name, last_name) => {
   return await prisma.profile.update({
     where: {
-      userId: id,
+      id: profileId,
     },
     data: {
       first_name: first_name,
@@ -20,4 +20,4 @@ const updateProfileDb = async (id, first_name, last_name) => {
   })
 }
 
-export { getProfileByIdDb, updateProfileDb }
+export { getProfileByIdDb, updateProfileByIdDb }

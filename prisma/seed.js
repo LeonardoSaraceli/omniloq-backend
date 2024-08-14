@@ -1,10 +1,10 @@
-import { prisma } from '../src/utils/prisma'
+import { prisma } from '../src/utils/prisma.js'
 
 async function main() {
   const user = await prisma.user.create({
     data: {
-      email: 'test@gmail.com',
-      password: 'Leotest24268269!',
+      email: 'leonardolodi@test.com',
+      password: 'test12345',
     },
   })
 
@@ -13,8 +13,8 @@ async function main() {
   const profile = await prisma.profile.create({
     data: {
       userId: user.id,
-      first_name: 'Leonardo',
-      last_name: 'Lodi',
+      first_name: 'Test',
+      last_name: 'Account',
     },
   })
 
@@ -22,7 +22,8 @@ async function main() {
 
   const website = await prisma.website.create({
     data: {
-      url: 'testing.com',
+      url: 'omniloq.com',
+      userId: user.id,
     },
   })
 
@@ -30,9 +31,9 @@ async function main() {
 
   const item = await prisma.item.create({
     data: {
-      name: 'Testing item',
-      email: 'test@gmail.com',
-      password: 'Leotest24268269!',
+      name: 'Omniloq account',
+      email: 'leonardolodi@test.com',
+      password: 'test12345',
       userId: user.id,
       websites: {
         connect: {
@@ -46,8 +47,8 @@ async function main() {
 
   const chest = await prisma.chest.create({
     data: {
-      name: 'Testing chest',
-      description: 'Just testing',
+      name: 'Personal',
+      description: 'My general accounts',
       userId: user.id,
       items: {
         connect: {

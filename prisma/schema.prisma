@@ -35,7 +35,7 @@ model Chest {
   description String?
   items       Item[]
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int      @unique
+  userId      Int
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
@@ -46,10 +46,11 @@ model Item {
   email      String?
   username   String?
   password   String
+  favourite  Boolean   @default(false)
   chests     Chest[]
   websites   Website[]
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int       @unique
+  userId     Int
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 }
@@ -59,7 +60,7 @@ model Ticket {
   title      String
   message    String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int      @unique
+  userId     Int
   created_at DateTime @default(now())
 }
 
@@ -68,6 +69,6 @@ model Website {
   url        String
   items      Item[]
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int      @unique
+  userId     Int
   created_at DateTime @default(now())
 }

@@ -39,6 +39,7 @@ CREATE TABLE "Item" (
     "email" TEXT,
     "username" TEXT,
     "password" TEXT NOT NULL,
+    "favourite" BOOLEAN NOT NULL DEFAULT false,
     "userId" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

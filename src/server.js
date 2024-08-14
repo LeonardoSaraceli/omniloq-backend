@@ -6,6 +6,11 @@ import cors from 'cors'
 import ApiError from './errors/ApiError.js'
 import userRoute from './routes/user.js'
 import profileRoute from './routes/profile.js'
+import itemRoute from './routes/item.js'
+import chestRoute from './routes/chest.js'
+import ticketRoute from './routes/ticket.js'
+import websiteRoute from './routes/website.js'
+import decryptRoute from './routes/decrypt.js'
 
 const app = express()
 
@@ -15,6 +20,11 @@ app.use(json())
 
 app.use('/users', userRoute)
 app.use('/profile', profileRoute)
+app.use('/items', itemRoute)
+app.use('/chests', chestRoute)
+app.use('/tickets', ticketRoute)
+app.use('/websites', websiteRoute)
+app.use('/decrypt', decryptRoute)
 
 app.use((error, req, res, next) => {
   if (error instanceof ApiError) {

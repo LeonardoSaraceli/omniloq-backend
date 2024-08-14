@@ -1,55 +1,52 @@
 import {
-  comparePassword,
-  createChestDb,
-  createItemDb,
-  createProfileDb,
-  createTokenDb,
-  createUserDb,
-  createWebsiteDb,
-  deleteUserByIdDb,
-  getUserByEmail,
-  getUserByIdDb,
-} from '../domains/user.js'
-import {
   BadRequestError,
   ExistingUniqueField,
-  MissingFieldsError,
   NotFoundError,
 } from '../errors/ApiError.js'
+import {
+  createTokenDb,
+  createUserDb,
+  deleteUserByIdDb,
+  getUserByEmailDb,
+  getUserByIdDb,
+  verifyPasswordDb,
+} from '../domains/user.js'
+
+const getUserById = async (req, res) => {
+  const userId = Number(req.params.id)
+
+  const user = await getUserByIdDb(userId)
+
+  if (!user) {
+    throw new NotFoundError('User not found')
+  }
+
+  delete user.password
+
+  return res.json({
+    user,
+  })
+}
 
 const createUser = async (req, res) => {
   const { first_name, last_name, email, password } = req.body
 
   if (!first_name || !last_name || !email || !password) {
-    throw new MissingFieldsError('Missing fields in request body')
+    throw new BadRequestError('Missing fields in request body')
   }
 
-  const user = await getUserByEmail(email)
+  const emailFound = await getUserByEmailDb(email)
 
-  if (user) {
+  if (emailFound) {
     throw new ExistingUniqueField('The email provided already exists')
   }
 
-  const newUser = await createUserDb(email, password)
+  const user = await createUserDb(first_name, last_name, email, password)
 
-  await createProfileDb(first_name, last_name, newUser.id)
-
-  const website = await createWebsiteDb('omniloq.com', newUser.id)
-
-  const item = await createItemDb(
-    'Omniloq account',
-    email,
-    password,
-    newUser.id,
-    website.id
-  )
-
-  await createChestDb('Personal', 'My general accounts.', newUser.id, item.id)
-
-  delete newUser.password
+  delete user.password
 
   return res.status(201).json({
-    user: newUser,
+    user,
   })
 }
 
@@ -57,62 +54,38 @@ const createToken = async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
-    throw new MissingFieldsError('Missing fields in request body')
+    throw new BadRequestError('Missing fields in request body')
   }
 
-  const user = await getUserByEmail(email)
+  const user = await getUserByEmailDb(email)
 
   if (!user) {
-    throw new BadRequestError('The email or password are incorrect')
+    throw new BadRequestError('Incorrect email or password')
   }
 
-  const passwordMatch = await comparePassword(password, user.password)
+  const passwordMatch = await verifyPasswordDb(password, user.password)
 
   if (!passwordMatch) {
-    throw new BadRequestError('The email or password are incorrect')
+    throw new BadRequestError('Incorrect email or password')
   }
 
-  const token = createTokenDb(user.id, process.env.SECRET_KEY)
+  const token = createTokenDb(user.id)
 
   return res.status(201).json({
     token,
   })
 }
 
-const getUserById = async (req, res) => {
-  const id = Number(req.params.id)
-
-  if (isNaN(id)) {
-    throw new BadRequestError('The id must be a number')
-  }
-
-  const user = await getUserByIdDb(id)
-
-  if (!user) {
-    throw new NotFoundError("The id provided dosen't match any user")
-  }
-
-  delete user.password
-
-  return res.json({
-    user,
-  })
-}
-
 const deleteUserById = async (req, res) => {
-  const id = Number(req.params.id)
+  const userId = Number(req.params.id)
 
-  if (isNaN(id)) {
-    throw new BadRequestError('The id must be a number')
+  const idFound = await getUserByIdDb(userId)
+
+  if (!idFound) {
+    throw new NotFoundError('User not found')
   }
 
-  const userFound = await getUserByIdDb(id)
-
-  if (!userFound) {
-    throw new NotFoundError("The id provided dosen't match any user")
-  }
-
-  const user = await deleteUserByIdDb(id)
+  const user = await deleteUserByIdDb(userId)
 
   delete user.password
 
@@ -121,4 +94,4 @@ const deleteUserById = async (req, res) => {
   })
 }
 
-export { createUser, createToken, getUserById, deleteUserById }
+export { getUserById, createUser, createToken, deleteUserById }
