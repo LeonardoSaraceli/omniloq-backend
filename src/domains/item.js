@@ -6,6 +6,13 @@ const getAllItemsDb = async (userId) => {
     where: {
       userId: userId,
     },
+    include: {
+      websites: {
+        where: {
+          userId: userId,
+        },
+      },
+    },
   })
 }
 

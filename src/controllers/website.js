@@ -1,3 +1,4 @@
+import { getItemByIdDb } from '../domains/item.js'
 import { getUserByIdDb } from '../domains/user.js'
 import {
   createWebsiteDb,
@@ -28,9 +29,9 @@ const getAllWebsites = async (req, res) => {
 }
 
 const createWebsite = async (req, res) => {
-  const { userId, url } = req.body
+  const { userId, itemId, url } = req.body
 
-  if (!userId || !url) {
+  if (!userId || !itemId || !url) {
     throw new BadRequestError('Missing fields in request body')
   }
 
@@ -40,7 +41,13 @@ const createWebsite = async (req, res) => {
     throw new NotFoundError('User not found')
   }
 
-  const website = await createWebsiteDb(userId, url)
+  const itemFound = await getItemByIdDb(userId, itemId)
+
+  if (!itemFound) {
+    throw new NotFoundError('Item not found')
+  }
+
+  const website = await createWebsiteDb(userId, itemId, url)
 
   return res.status(201).json({
     website,

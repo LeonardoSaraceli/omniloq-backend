@@ -1,4 +1,4 @@
-import { prisma } from "../utils/prisma.js"
+import { prisma } from '../utils/prisma.js'
 
 const getAllWebsitesDb = async (userId) => {
   return await prisma.website.findMany({
@@ -8,11 +8,16 @@ const getAllWebsitesDb = async (userId) => {
   })
 }
 
-const createWebsiteDb = async (userId, url) => {
+const createWebsiteDb = async (userId, itemId, url) => {
   return await prisma.website.create({
     data: {
       userId: userId,
       url: url,
+      items: {
+        connect: {
+          id: itemId,
+        },
+      },
     },
   })
 }

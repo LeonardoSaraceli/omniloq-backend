@@ -5,6 +5,13 @@ const getAllChestsDb = async (userId) => {
     where: {
       userId: userId,
     },
+    include: {
+      items: {
+        where: {
+          userId: userId,
+        },
+      },
+    },
   })
 }
 
@@ -23,6 +30,9 @@ const getChestByIdDb = async (userId, chestId) => {
     where: {
       userId: userId,
       id: chestId,
+    },
+    include: {
+      items: true,
     },
   })
 }
@@ -49,10 +59,50 @@ const deleteChestByIdDb = async (userId, chestId) => {
   })
 }
 
+const addItemToChestDb = async (userId, chestId, itemId) => {
+  return await prisma.chest.update({
+    where: {
+      userId: userId,
+      id: chestId,
+    },
+    data: {
+      items: {
+        connect: {
+          id: itemId,
+        },
+      },
+    },
+    include: {
+      items: true,
+    },
+  })
+}
+
+const removeItemFromChestDb = async (userId, chestId, itemId) => {
+  return await prisma.chest.update({
+    where: {
+      userId: userId,
+      id: chestId,
+    },
+    data: {
+      items: {
+        disconnect: {
+          id: itemId,
+        },
+      },
+    },
+    include: {
+      items: true,
+    },
+  })
+}
+
 export {
   getAllChestsDb,
   createChestDb,
   getChestByIdDb,
   editChestByIdDb,
   deleteChestByIdDb,
+  addItemToChestDb,
+  removeItemFromChestDb,
 }

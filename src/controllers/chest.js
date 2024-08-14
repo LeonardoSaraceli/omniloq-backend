@@ -1,10 +1,13 @@
 import {
+  addItemToChestDb,
   createChestDb,
   deleteChestByIdDb,
   editChestByIdDb,
   getAllChestsDb,
   getChestByIdDb,
+  removeItemFromChestDb,
 } from '../domains/chest.js'
+import { getItemByIdDb } from '../domains/item.js'
 import { getUserByIdDb } from '../domains/user.js'
 import { BadRequestError, NotFoundError } from '../errors/ApiError.js'
 
@@ -92,4 +95,52 @@ const deleteChestById = async (req, res) => {
   })
 }
 
-export { getAllChests, createChest, editChestById, deleteChestById }
+const addOrRemoveChestItem = async (req, res) => {
+  const addPath = req.path.includes('add')
+
+  const { userId, chestId } = req.body
+
+  if (!userId || !chestId) {
+    throw new BadRequestError('Missing fields in request body')
+  }
+
+  const chestIdFound = await getChestByIdDb(userId, chestId)
+
+  if (!chestIdFound) {
+    throw new NotFoundError('Chest not found')
+  }
+
+  const itemId = Number(req.params.id)
+
+  const itemIdFound = await getItemByIdDb(userId, itemId)
+
+  if (!itemIdFound) {
+    throw new NotFoundError('Item not found')
+  }
+
+  const itemExists = chestIdFound.items.some((item) => item.id === itemId)
+
+  if (addPath && itemExists) {
+    throw new BadRequestError('Item already added to the chest')
+  }
+
+  if (!addPath && !itemExists) {
+    throw new BadRequestError('Item not found in the chest')
+  }
+
+  const chest = addPath
+    ? await addItemToChestDb(userId, chestId, itemId)
+    : await removeItemFromChestDb(userId, chestId, itemId)
+
+  return res.json({
+    chest,
+  })
+}
+
+export {
+  getAllChests,
+  createChest,
+  editChestById,
+  deleteChestById,
+  addOrRemoveChestItem,
+}
