@@ -10,39 +10,53 @@ import { getUserByIdDb } from '../domains/user.js'
 import { BadRequestError, NotFoundError } from '../errors/ApiError.js'
 
 const getAllItems = async (req, res) => {
-  const { userId } = req.body
+  const { id } = req.user
 
-  if (!userId) {
-    throw new BadRequestError('Missing fields in request body')
-  }
-
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
 
-  const items = await getAllItemsDb(userId)
+  const items = await getAllItemsDb(id)
 
   return res.json({
     items,
   })
 }
 
-const createItem = async (req, res) => {
-  const { userId, name, email, username, password } = req.body
+const getItemById = async (req, res) => {
+  const { id } = req.user
 
-  if (!userId || !name || !password) {
+  const itemId = Number(req.params.id)
+
+  const item = await getItemByIdDb(id, itemId)
+
+  if (!item) {
+    throw new NotFoundError('Item not found')
+  }
+
+  return res.json({
+    item,
+  })
+}
+
+const createItem = async (req, res) => {
+  const { id } = req.user
+
+  const { name, email, username, password } = req.body
+
+  if (!name || !password) {
     throw new BadRequestError('Missing fields in request body')
   }
 
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
 
-  const item = await createItemDb(userId, name, email, username, password)
+  const item = await createItemDb(id, name, email, username, password)
 
   return res.status(201).json({
     item,
@@ -50,21 +64,21 @@ const createItem = async (req, res) => {
 }
 
 const favoriteItemById = async (req, res) => {
-  const { userId } = req.body
+  const { id } = req.user
 
-  if (!userId) {
+  if (!id) {
     throw new BadRequestError('Missing fields in request body')
   }
 
   const itemId = Number(req.params.id)
 
-  const idFound = await getItemByIdDb(userId, itemId)
+  const idFound = await getItemByIdDb(id, itemId)
 
   if (!idFound) {
     throw new NotFoundError('Item not found')
   }
 
-  const item = await favoriteOrUnfavoriteItemByIdDb(userId, itemId, true)
+  const item = await favoriteOrUnfavoriteItemByIdDb(id, itemId, true)
 
   return res.json({
     item,
@@ -72,21 +86,21 @@ const favoriteItemById = async (req, res) => {
 }
 
 const unfavoriteItemById = async (req, res) => {
-  const { userId } = req.body
+  const { id } = req.user
 
-  if (!userId) {
+  if (!id) {
     throw new BadRequestError('Missing fields in request body')
   }
 
   const itemId = Number(req.params.id)
 
-  const idFound = await getItemByIdDb(userId, itemId)
+  const idFound = await getItemByIdDb(id, itemId)
 
   if (!idFound) {
     throw new NotFoundError('Item not found')
   }
 
-  const item = await favoriteOrUnfavoriteItemByIdDb(userId, itemId, false)
+  const item = await favoriteOrUnfavoriteItemByIdDb(id, itemId, false)
 
   return res.json({
     item,
@@ -94,28 +108,23 @@ const unfavoriteItemById = async (req, res) => {
 }
 
 const editItemById = async (req, res) => {
-  const { userId, name, email, username, password } = req.body
+  const { id } = req.user
 
-  if (!userId || !name || !password) {
+  const { name, email, username, password } = req.body
+
+  if (!name || !password) {
     throw new BadRequestError('Missing fields in request body')
   }
 
   const itemId = Number(req.params.id)
 
-  const idFound = await getItemByIdDb(userId, itemId)
+  const idFound = await getItemByIdDb(id, itemId)
 
   if (!idFound) {
     throw new NotFoundError('Item not found')
   }
 
-  const item = await editItemByIdDb(
-    userId,
-    itemId,
-    name,
-    email,
-    username,
-    password
-  )
+  const item = await editItemByIdDb(id, itemId, name, email, username, password)
 
   return res.json({
     item,
@@ -123,21 +132,17 @@ const editItemById = async (req, res) => {
 }
 
 const deleteItemById = async (req, res) => {
-  const { userId } = req.body
-
-  if (!userId) {
-    throw new BadRequestError('Missing fields in request body')
-  }
+  const { id } = req.user
 
   const itemId = Number(req.params.id)
 
-  const idFound = await getItemByIdDb(userId, itemId)
+  const idFound = await getItemByIdDb(id, itemId)
 
   if (!idFound) {
     throw new NotFoundError('Item not found')
   }
 
-  const item = await deleteItemByIdDb(userId, itemId)
+  const item = await deleteItemByIdDb(id, itemId)
 
   return res.json({
     item,
@@ -146,6 +151,7 @@ const deleteItemById = async (req, res) => {
 
 export {
   getAllItems,
+  getItemById,
   createItem,
   favoriteItemById,
   unfavoriteItemById,

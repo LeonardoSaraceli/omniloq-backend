@@ -4,8 +4,9 @@ import {
 } from '../domains/decrypt.js'
 import { BadRequestError } from '../errors/ApiError.js'
 
-const getDecryptedPassword = (req, res) => {
+const updateDecryptedPassword = (req, res) => {
   const { password } = req.body
+
 
   if (!password) {
     throw new BadRequestError('Missing fields in request body')
@@ -14,7 +15,7 @@ const getDecryptedPassword = (req, res) => {
   const bytes = decryptPasswordDb(password)
 
   if (bytes.sigBytes <= 0) {
-    throw new BadRequestError('Incorrect password')
+    throw new BadRequestError('Invalid password')
   }
 
   const decrypted = getDecryptedPasswordDb(bytes)
@@ -24,4 +25,4 @@ const getDecryptedPassword = (req, res) => {
   })
 }
 
-export { getDecryptedPassword }
+export { updateDecryptedPassword }

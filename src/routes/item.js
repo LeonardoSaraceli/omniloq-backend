@@ -5,6 +5,7 @@ import {
   editItemById,
   favoriteItemById,
   getAllItems,
+  getItemById,
   unfavoriteItemById,
 } from '../controllers/item.js'
 import { isTokenValid } from '../middleware/auth.js'
@@ -12,6 +13,7 @@ import { isTokenValid } from '../middleware/auth.js'
 const route = Router()
 
 route.get('/', isTokenValid, getAllItems)
+route.get('/:id', isTokenValid, getItemById)
 route.post('/', isTokenValid, createItem)
 route.put('/favorite/:id', isTokenValid, favoriteItemById)
 route.put('/unfavorite/:id', isTokenValid, unfavoriteItemById)

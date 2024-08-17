@@ -6,12 +6,11 @@ const getAllItemsDb = async (userId) => {
     where: {
       userId: userId,
     },
+    orderBy: {
+      created_at: 'asc',
+    },
     include: {
-      websites: {
-        where: {
-          userId: userId,
-        },
-      },
+      chests: true,
     },
   })
 }
@@ -37,6 +36,9 @@ const getItemByIdDb = async (userId, itemId) => {
       userId: userId,
       id: itemId,
     },
+    include: {
+      websites: true,
+    },
   })
 }
 
@@ -48,6 +50,9 @@ const favoriteOrUnfavoriteItemByIdDb = async (userId, itemId, state) => {
     },
     data: {
       favourite: state,
+    },
+    include: {
+      websites: true,
     },
   })
 }

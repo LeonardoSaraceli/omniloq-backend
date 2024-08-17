@@ -11,7 +11,6 @@ import chestRoute from './routes/chest.js'
 import ticketRoute from './routes/ticket.js'
 import websiteRoute from './routes/website.js'
 import decryptRoute from './routes/decrypt.js'
-import tokenRoute from './routes/token.js'
 
 const app = express()
 
@@ -26,7 +25,6 @@ app.use('/chests', chestRoute)
 app.use('/tickets', ticketRoute)
 app.use('/websites', websiteRoute)
 app.use('/decrypt', decryptRoute)
-app.use('/token', tokenRoute)
 
 app.use((error, req, res, next) => {
   if (error instanceof ApiError) {

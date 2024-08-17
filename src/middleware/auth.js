@@ -7,7 +7,9 @@ const isTokenValid = (req, res, next) => {
 
     const token = headers.split(' ')[1]
 
-    jwt.verify(token, process.env.SECRET_KEY)
+    const payload = jwt.verify(token, process.env.SECRET_KEY)
+
+    req.user = payload
 
     next()
   } catch (error) {

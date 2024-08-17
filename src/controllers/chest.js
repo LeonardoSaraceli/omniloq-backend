@@ -12,19 +12,15 @@ import { getUserByIdDb } from '../domains/user.js'
 import { BadRequestError, NotFoundError } from '../errors/ApiError.js'
 
 const getAllChests = async (req, res) => {
-  const { userId } = req.body
+  const { id } = req.user
 
-  if (!userId) {
-    throw new BadRequestError('Missing fields in request body')
-  }
-
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
 
-  const chests = await getAllChestsDb(userId)
+  const chests = await getAllChestsDb(id)
 
   return res.json({
     chests,
@@ -32,19 +28,21 @@ const getAllChests = async (req, res) => {
 }
 
 const createChest = async (req, res) => {
-  const { userId, name, description } = req.body
+  const { id } = req.user
 
-  if (!userId || !name) {
+  const { name, description } = req.body
+
+  if (!name) {
     throw new BadRequestError('Missing fields in request body')
   }
 
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
 
-  const chest = await createChestDb(userId, name, description)
+  const chest = await createChestDb(id, name, description)
 
   return res.status(201).json({
     chest,
@@ -137,10 +135,27 @@ const addOrRemoveChestItem = async (req, res) => {
   })
 }
 
+const getChestById = async (req, res) => {
+  const { id } = req.user
+
+  const chestId = Number(req.params.id)
+
+  const chest = await getChestByIdDb(id, chestId)
+
+  if (!chest) {
+    throw new NotFoundError('Chest not found')
+  }
+
+  return res.json({
+    chest,
+  })
+}
+
 export {
   getAllChests,
   createChest,
   editChestById,
   deleteChestById,
   addOrRemoveChestItem,
+  getChestById
 }

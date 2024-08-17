@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { getDecryptedPassword } from '../controllers/decrypt.js'
+import { updateDecryptedPassword } from '../controllers/decrypt.js'
 import { isTokenValid } from '../middleware/auth.js'
 
 const route = Router()
 
-route.get('/', isTokenValid, getDecryptedPassword)
+route.put('/', isTokenValid, updateDecryptedPassword)
 
 export default route
