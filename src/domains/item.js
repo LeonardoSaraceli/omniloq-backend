@@ -7,7 +7,7 @@ const getAllItemsDb = async (userId) => {
       userId: userId,
     },
     orderBy: {
-      created_at: 'asc',
+      created_at: 'desc',
     },
     include: {
       chests: true,

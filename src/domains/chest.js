@@ -12,6 +12,9 @@ const getAllChestsDb = async (userId) => {
         },
       },
     },
+    orderBy: {
+      created_at: 'desc',
+    },
   })
 }
 

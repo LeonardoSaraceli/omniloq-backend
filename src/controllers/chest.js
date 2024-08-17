@@ -50,21 +50,23 @@ const createChest = async (req, res) => {
 }
 
 const editChestById = async (req, res) => {
-  const { userId, name, description } = req.body
+  const { id } = req.user
 
-  if (!userId || !name) {
+  const { name, description } = req.body
+
+  if (!name) {
     throw new BadRequestError('Missing fields in request body')
   }
 
   const chestId = Number(req.params.id)
 
-  const idFound = await getChestByIdDb(userId, chestId)
+  const idFound = await getChestByIdDb(id, chestId)
 
   if (!idFound) {
     throw new NotFoundError('Chest not found')
   }
 
-  const chest = await editChestByIdDb(userId, chestId, name, description)
+  const chest = await editChestByIdDb(id, chestId, name, description)
 
   return res.json({
     chest,
@@ -72,21 +74,17 @@ const editChestById = async (req, res) => {
 }
 
 const deleteChestById = async (req, res) => {
-  const { userId } = req.body
-
-  if (!userId) {
-    throw new BadRequestError('Missing fields in request body')
-  }
+  const { id } = req.user
 
   const chestId = Number(req.params.id)
 
-  const idFound = await getChestByIdDb(userId, chestId)
+  const idFound = await getChestByIdDb(id, chestId)
 
   if (!idFound) {
     throw new NotFoundError('Chest not found')
   }
 
-  const chest = await deleteChestByIdDb(userId, chestId)
+  const chest = await deleteChestByIdDb(id, chestId)
 
   return res.json({
     chest,
@@ -96,13 +94,15 @@ const deleteChestById = async (req, res) => {
 const addOrRemoveChestItem = async (req, res) => {
   const addPath = req.path.includes('add')
 
-  const { userId, chestId } = req.body
+  const { id } = req.user
 
-  if (!userId || !chestId) {
+  const { chestId } = req.body
+
+  if (!chestId) {
     throw new BadRequestError('Missing fields in request body')
   }
 
-  const chestIdFound = await getChestByIdDb(userId, chestId)
+  const chestIdFound = await getChestByIdDb(id, chestId)
 
   if (!chestIdFound) {
     throw new NotFoundError('Chest not found')
@@ -110,7 +110,7 @@ const addOrRemoveChestItem = async (req, res) => {
 
   const itemId = Number(req.params.id)
 
-  const itemIdFound = await getItemByIdDb(userId, itemId)
+  const itemIdFound = await getItemByIdDb(id, itemId)
 
   if (!itemIdFound) {
     throw new NotFoundError('Item not found')
@@ -127,8 +127,8 @@ const addOrRemoveChestItem = async (req, res) => {
   }
 
   const chest = addPath
-    ? await addItemToChestDb(userId, chestId, itemId)
-    : await removeItemFromChestDb(userId, chestId, itemId)
+    ? await addItemToChestDb(id, chestId, itemId)
+    : await removeItemFromChestDb(id, chestId, itemId)
 
   return res.json({
     chest,
@@ -157,5 +157,5 @@ export {
   editChestById,
   deleteChestById,
   addOrRemoveChestItem,
-  getChestById
+  getChestById,
 }
