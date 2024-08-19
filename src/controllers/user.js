@@ -13,9 +13,9 @@ import {
 } from '../domains/user.js'
 
 const getUserById = async (req, res) => {
-  const userId = Number(req.params.id)
+  const { id } = req.user
 
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
@@ -77,15 +77,15 @@ const createToken = async (req, res) => {
 }
 
 const deleteUserById = async (req, res) => {
-  const userId = Number(req.params.id)
+  const { id } = req.user
 
-  const idFound = await getUserByIdDb(userId)
+  const idFound = await getUserByIdDb(id)
 
   if (!idFound) {
     throw new NotFoundError('User not found')
   }
 
-  const user = await deleteUserByIdDb(userId)
+  const user = await deleteUserByIdDb(id)
 
   delete user.password
 

@@ -38,6 +38,7 @@ const getItemByIdDb = async (userId, itemId) => {
     },
     include: {
       websites: true,
+      chests: true,
     },
   })
 }

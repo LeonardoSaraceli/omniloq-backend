@@ -2,9 +2,9 @@ import { getProfileByIdDb, updateProfileByIdDb } from '../domains/profile.js'
 import { BadRequestError, NotFoundError } from '../errors/ApiError.js'
 
 const getProfileById = async (req, res) => {
-  const profileId = Number(req.params.id)
+  const { id } = req.user
 
-  const profile = await getProfileByIdDb(profileId)
+  const profile = await getProfileByIdDb(id)
 
   if (!profile) {
     throw new NotFoundError('Profile not found')
@@ -16,9 +16,9 @@ const getProfileById = async (req, res) => {
 }
 
 const updateProfileById = async (req, res) => {
-  const profileId = Number(req.params.id)
+  const { id } = req.user
 
-  const idFound = await getProfileByIdDb(profileId)
+  const idFound = await getProfileByIdDb(id)
 
   if (!idFound) {
     throw new NotFoundError('Profile not found')
@@ -30,7 +30,7 @@ const updateProfileById = async (req, res) => {
     throw new BadRequestError('Missing fields in request body')
   }
 
-  const profile = await updateProfileByIdDb(profileId, first_name, last_name)
+  const profile = await updateProfileByIdDb(id, first_name, last_name)
 
   return res.json({
     profile,

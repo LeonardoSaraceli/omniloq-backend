@@ -9,9 +9,9 @@ import { isTokenValid } from '../middleware/auth.js'
 
 const route = Router()
 
-route.get('/:id', isTokenValid, getUserById)
+route.get('/', isTokenValid, getUserById)
 route.post('/register', createUser)
 route.post('/login', createToken)
-route.delete('/:id', isTokenValid, deleteUserById)
+route.delete('/', isTokenValid, deleteUserById)
 
 export default route

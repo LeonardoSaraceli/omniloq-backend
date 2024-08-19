@@ -9,19 +9,15 @@ import {
 import { BadRequestError, NotFoundError } from '../errors/ApiError.js'
 
 const getAllWebsites = async (req, res) => {
-  const { userId } = req.body
+  const { id } = req.user
 
-  if (!userId) {
-    throw new BadRequestError('Missing fields in request body')
-  }
-
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
 
-  const websites = await getAllWebsitesDb(userId)
+  const websites = await getAllWebsitesDb(id)
 
   return res.json({
     websites,
@@ -29,25 +25,27 @@ const getAllWebsites = async (req, res) => {
 }
 
 const createWebsite = async (req, res) => {
-  const { userId, itemId, url } = req.body
+  const { id } = req.user
 
-  if (!userId || !itemId || !url) {
+  const { itemId, url } = req.body
+
+  if (!itemId || !url) {
     throw new BadRequestError('Missing fields in request body')
   }
 
-  const user = await getUserByIdDb(userId)
+  const user = await getUserByIdDb(id)
 
   if (!user) {
     throw new NotFoundError('User not found')
   }
 
-  const itemFound = await getItemByIdDb(userId, itemId)
+  const itemFound = await getItemByIdDb(id, itemId)
 
   if (!itemFound) {
     throw new NotFoundError('Item not found')
   }
 
-  const website = await createWebsiteDb(userId, itemId, url)
+  const website = await createWebsiteDb(id, itemId, url)
 
   return res.status(201).json({
     website,
@@ -55,21 +53,17 @@ const createWebsite = async (req, res) => {
 }
 
 const deleteWebsiteById = async (req, res) => {
-  const { userId } = req.body
-
-  if (!userId) {
-    throw new BadRequestError('Missing fields in request body')
-  }
+  const { id } = req.user
 
   const websiteId = Number(req.params.id)
 
-  const idFound = await getWebsiteByIdDb(userId, websiteId)
+  const idFound = await getWebsiteByIdDb(id, websiteId)
 
   if (!idFound) {
     throw new NotFoundError('Website not found')
   }
 
-  const website = await deleteWebsiteByIdDb(userId, websiteId)
+  const website = await deleteWebsiteByIdDb(id, websiteId)
 
   return res.json({
     website,
