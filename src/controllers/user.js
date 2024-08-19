@@ -11,6 +11,9 @@ import {
   getUserByIdDb,
   verifyPasswordDb,
 } from '../domains/user.js'
+import { addItemToChestDb, createChestDb } from '../domains/chest.js'
+import { createItemDb } from '../domains/item.js'
+import { createWebsiteDb } from '../domains/website.js'
 
 const getUserById = async (req, res) => {
   const { id } = req.user
@@ -42,6 +45,14 @@ const createUser = async (req, res) => {
   }
 
   const user = await createUserDb(first_name, last_name, email, password)
+
+  const chest = await createChestDb(user.id, 'Personal', 'My general accounts')
+
+  const item = await createItemDb(user.id, 'Omniloq', email, null, password)
+
+  await createWebsiteDb(user.id, item.id, 'omniloq.com')
+
+  await addItemToChestDb(user.id, chest.id, item.id)
 
   delete user.password
 
