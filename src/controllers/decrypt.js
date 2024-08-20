@@ -7,7 +7,6 @@ import { BadRequestError } from '../errors/ApiError.js'
 const updateDecryptedPassword = (req, res) => {
   const { password } = req.body
 
-
   if (!password) {
     throw new BadRequestError('Missing fields in request body')
   }

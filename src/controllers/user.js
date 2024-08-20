@@ -1,19 +1,25 @@
 import {
   BadRequestError,
   ExistingUniqueField,
+  InvalidTokenError,
   NotFoundError,
 } from '../errors/ApiError.js'
 import {
+  createPasswordTokenDb,
   createTokenDb,
   createUserDb,
   deleteUserByIdDb,
   getUserByEmailDb,
   getUserByIdDb,
-  verifyPasswordDb,
 } from '../domains/user.js'
 import { addItemToChestDb, createChestDb } from '../domains/chest.js'
 import { createItemDb } from '../domains/item.js'
 import { createWebsiteDb } from '../domains/website.js'
+import {
+  decryptPasswordDb,
+  getDecryptedPasswordDb,
+} from '../domains/decrypt.js'
+import jwt from 'jsonwebtoken'
 
 const getUserById = async (req, res) => {
   const { id } = req.user
@@ -74,9 +80,15 @@ const createToken = async (req, res) => {
     throw new BadRequestError('Incorrect email or password')
   }
 
-  const passwordMatch = await verifyPasswordDb(password, user.password)
+  const bytes = decryptPasswordDb(user.password)
 
-  if (!passwordMatch) {
+  if (bytes.sigBytes <= 0) {
+    throw new BadRequestError('Invalid password')
+  }
+
+  const decrypted = getDecryptedPasswordDb(bytes)
+
+  if (password !== decrypted) {
     throw new BadRequestError('Incorrect email or password')
   }
 
@@ -105,4 +117,65 @@ const deleteUserById = async (req, res) => {
   })
 }
 
-export { getUserById, createUser, createToken, deleteUserById }
+const createPasswordToken = async (req, res) => {
+  const { id } = req.user
+
+  const { password } = req.body
+
+  if (!password) {
+    throw new BadRequestError('Missing fields in request body')
+  }
+
+  const user = await getUserByIdDb(id)
+
+  if (!user) {
+    throw new NotFoundError('User not found')
+  }
+
+  const bytes = decryptPasswordDb(user.password)
+
+  if (bytes.sigBytes <= 0) {
+    throw new BadRequestError('Invalid password')
+  }
+
+  const decrypted = getDecryptedPasswordDb(bytes)
+
+  if (password !== decrypted) {
+    throw new BadRequestError('Incorrect email or password')
+  }
+
+  const token = createPasswordTokenDb(id)
+
+  return res.status(201).json({
+    token,
+  })
+}
+
+const verifyToken = async (req, res) => {
+  try {
+    const headers = req.headers['authorization']
+
+    const token = headers.split(' ')[1]
+
+    const payload = jwt.verify(token, process.env.SECRET_KEY)
+
+    if (payload.type !== 'password_view') {
+      throw new InvalidTokenError('Invalid token type for password viewing')
+    }
+
+    return res.json({
+      valid: true,
+    })
+  } catch (error) {
+    throw new InvalidTokenError('Unauthorized token')
+  }
+}
+
+export {
+  getUserById,
+  createUser,
+  createToken,
+  deleteUserById,
+  createPasswordToken,
+  verifyToken,
+}

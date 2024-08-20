@@ -87,18 +87,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Chest_userId_key" ON "Chest"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Item_userId_key" ON "Item"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Ticket_userId_key" ON "Ticket"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Website_userId_key" ON "Website"("userId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "_ChestToItem_AB_unique" ON "_ChestToItem"("A", "B");
 
 -- CreateIndex

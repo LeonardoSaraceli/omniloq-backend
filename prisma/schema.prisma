@@ -41,18 +41,19 @@ model Chest {
 }
 
 model Item {
-  id         Int       @id @default(autoincrement())
-  name       String
-  email      String?
-  username   String?
-  password   String
-  favourite  Boolean   @default(false)
-  chests     Chest[]
-  websites   Website[]
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String?
+  username      String?
+  password      String
+  favourite     Boolean   @default(false)
+  show_password Boolean   @default(false)
+  chests        Chest[]
+  websites      Website[]
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 }
 
 model Ticket {

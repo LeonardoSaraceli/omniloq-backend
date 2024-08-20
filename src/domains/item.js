@@ -92,6 +92,18 @@ const deleteItemByIdDb = async (userId, itemId) => {
   })
 }
 
+const showOrHidePasswordByIdDb = async (userId, itemId, state) => {
+  return prisma.item.update({
+    where: {
+      userId: userId,
+      id: itemId,
+    },
+    data: {
+      show_password: state,
+    },
+  })
+}
+
 export {
   getAllItemsDb,
   createItemDb,
@@ -99,4 +111,5 @@ export {
   favoriteOrUnfavoriteItemByIdDb,
   editItemByIdDb,
   deleteItemByIdDb,
+  showOrHidePasswordByIdDb,
 }

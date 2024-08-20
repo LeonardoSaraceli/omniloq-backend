@@ -1,6 +1,6 @@
 import { prisma } from '../utils/prisma.js'
-import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import CryptoJS from 'crypto-js'
 
 const getUserByIdDb = async (userId) => {
   return await prisma.user.findUnique({
@@ -22,7 +22,10 @@ const createUserDb = async (first_name, last_name, email, password) => {
   return await prisma.user.create({
     data: {
       email: email,
-      password: await bcrypt.hash(password, 8),
+      password: CryptoJS.AES.encrypt(
+        password,
+        process.env.SECRET_KEY
+      ).toString(),
       profile: {
         create: {
           first_name: first_name,
@@ -31,10 +34,6 @@ const createUserDb = async (first_name, last_name, email, password) => {
       },
     },
   })
-}
-
-const verifyPasswordDb = async (password, userPassword) => {
-  return await bcrypt.compare(password, userPassword)
 }
 
 const createTokenDb = (userId) => {
@@ -49,11 +48,19 @@ const deleteUserByIdDb = async (userId) => {
   })
 }
 
+const createPasswordTokenDb = (userId) => {
+  return jwt.sign(
+    { id: userId, type: 'password_view' },
+    process.env.SECRET_KEY,
+    { expiresIn: '1h' }
+  )
+}
+
 export {
   getUserByIdDb,
   getUserByEmailDb,
   createUserDb,
-  verifyPasswordDb,
   createTokenDb,
   deleteUserByIdDb,
+  createPasswordTokenDb,
 }
