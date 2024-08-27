@@ -1,4 +1,4 @@
-import 'dotenv'
+import 'dotenv/config'
 import express, { json } from 'express'
 import 'express-async-errors'
 import morgan from 'morgan'
@@ -15,7 +15,16 @@ import decryptRoute from './routes/decrypt.js'
 const app = express()
 
 app.use(morgan('dev'))
-app.use(cors())
+
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173'
+app.use(
+  cors({
+    origin: allowedOrigin,
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+  })
+)
+
 app.use(json())
 
 app.use('/users', userRoute)
