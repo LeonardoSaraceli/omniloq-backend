@@ -22,6 +22,7 @@ app.use(
     origin: allowedOrigin,
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
+    preflightContinue: false,
   })
 )
 
