@@ -16,7 +16,7 @@ const app = express()
 
 app.use(morgan('dev'))
 
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173'
+export const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173'
 app.use(
   cors({
     origin: allowedOrigin,

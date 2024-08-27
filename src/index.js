@@ -1,4 +1,4 @@
-import app from './server.js'
+import app, { allowedOrigin } from './server.js'
 const port = process.env.PORT || 3030
 
 app.listen(port, () => {
